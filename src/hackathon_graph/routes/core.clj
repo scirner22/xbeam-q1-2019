@@ -8,8 +8,7 @@
   []
   (let [nodes (map :customer (graph/query graph/get-all-xbeam-customers))
         edges (graph/query graph/get-all-xbeam-customer-partnerships)]
-    (response {:nodes nodes
-               :edges edges})))
+    (response {:nodes nodes :edges edges})))
 
 (defroutes app
   (GET "/" [] (get-all))

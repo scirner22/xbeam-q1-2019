@@ -22,7 +22,7 @@
 
 (defn org-nodes
   []
-  (map #(dissoc % :id) (orgs)))
+  (map #(assoc % :id (-> % :id Integer/parseInt)) (orgs)))
 
 (defn partnerships
   []

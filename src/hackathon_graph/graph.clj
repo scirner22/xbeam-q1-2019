@@ -13,7 +13,7 @@
 
 (db/defquery get-all-xbeam-customer-partnerships
   "MATCH (a:customer)-[p:PARTNER]->(b:customer)
-     RETURN a.name as creator, a.name as customer1, b.name as customer2, p as partnership")
+     RETURN a.id as sid, b.id as tid, p as partnership")
 
 (db/defquery create-xbeam-customer-partnership
   "MATCH (a:customer),(b:customer)

@@ -1,0 +1,21 @@
+# vim: ft=dockerfile
+FROM clojure:alpine
+ARG UID=0
+ARG USER=root
+
+RUN echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories && \
+    apk add --no-cache git postgresql-libs gcc musl-dev \
+            postgresql-dev libffi-dev bash shadow
+
+RUN mkdir /app && \
+    if [ $UID != 0 ]; then \
+        adduser -D -u $UID $USER && \
+        chown $USER /app; \
+    fi
+
+COPY data /data
+
+USER $USER
+WORKDIR /app
+
+CMD ["lein", "run"]

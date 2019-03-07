@@ -2,6 +2,7 @@
   (:require [nrepl.server :as nrepl]
             [org.httpkit.server :refer [run-server]]
             [ring.middleware.json :refer [wrap-json-response]]
+            [jumblerg.middleware.cors :refer [wrap-cors]]
             [hackathon-graph.routes.core :refer [app]])
   (:gen-class))
 
@@ -11,7 +12,7 @@
 
 (defn start-http-server
   []
-  (reset! http-server (run-server (wrap-json-response #'app) {:port 3000})))
+  (reset! http-server (run-server (wrap-cors (wrap-json-response #'app) #".*") {:port 3000})))
 
 (defn stop-http-server
   []

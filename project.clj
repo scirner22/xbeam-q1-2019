@@ -5,6 +5,7 @@
                  [gorillalabs/neo4j-clj "2.0.1"]
                  [ring/ring-core "1.7.1"]
                  [ring/ring-json "0.4.0"]
+                 [jumblerg/ring-cors "2.0.0"]
                  [http-kit "2.3.0"]
                  [compojure "1.6.1"]
                  [org.clojure/tools.cli "0.4.1"]

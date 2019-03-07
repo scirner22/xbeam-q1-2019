@@ -11,6 +11,9 @@
 (db/defquery get-all-xbeam-customers
   "MATCH (c:customer) RETURN c as customer")
 
+(db/defquery get-xbeam-customer
+  "MATCH (a:customer{id: $id})-[p:PARTNER*1..2]-(b:customer) return a, b, p")
+
 (db/defquery get-all-xbeam-customer-partnerships
   "MATCH (a:customer)-[p:PARTNER]->(b:customer)
      RETURN a.id as sid, b.id as tid, p as partnership")
@@ -26,9 +29,12 @@
      DETACH DELETE n")
 
 (defn query
-  [func]
-  (with-open [session (db/get-session local-db)]
-    (func session)))
+  ([func]
+   (with-open [session (db/get-session local-db)]
+     (func session)))
+  ([func opts]
+   (with-open [session (db/get-session local-db)]
+     (func session opts))))
 
 (defn seed-db
   []

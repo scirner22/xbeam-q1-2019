@@ -92,7 +92,8 @@
     (let [all-customers (map :customer (query get-all-nodes))
           all-customers-lookup (group-by :name all-customers)
           all-prospects (map :prospect (query get-all-xbeam-prospects))
-          all-prospects-lookup (group-by :name all-prospects)]
+          all-prospects-lookup (group-by :name all-prospects)
+          counter (atom 5000)]
     (doseq [node (seed/hubspot-nodes)]
       (when (not (contains? all-customers-lookup (:name node)))
       (with-open [session (db/get-session local-db)]
@@ -105,9 +106,9 @@
         (do
           (with-open [session (db/get-session local-db)]
             (when (not (contains? (set (mapv #(get-in % [:node :name]) (get-all-nodes session))) l))
-              (create-xbeam-lead session {:lead {:_color "#b5b5b5" :name l}}))
+              (create-xbeam-lead session {:lead {:_color "#b5b5b5" :name l :id (swap! counter inc)}}))
             (when (not (contains? (set (mapv #(get-in % [:node :name]) (get-all-nodes session))) r))
-              (create-xbeam-lead session {:lead {:_color "#b5b5b5" :name r}}))
+              (create-xbeam-lead session {:lead {:_color "#b5b5b5" :name r :id (swap! counter inc)}}))
             (create-xbeam-opportunity session {:a_name l :b_name r :opp {:_color "#b5b5b5"}})))))))
 
 (comment

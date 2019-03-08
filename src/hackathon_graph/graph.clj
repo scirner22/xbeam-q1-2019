@@ -9,7 +9,7 @@
   "CREATE (c:customer $customer)")
 
 (db/defquery get-all-xbeam-customers
-  "MATCH (c:customer) RETURN c as customer")
+  "MATCH (c:customer) RETURN c as customer, labels(c) as labels")
 
 (db/defquery get-xbeam-customer-node
   "MATCH (a:customer{id: $id})
@@ -21,8 +21,8 @@
       RETURN a, b, c, p1, p2")
 
 (db/defquery get-all-xbeam-customer-partnerships
-  "MATCH (a:customer)-[p:PARTNER]->(b:customer)
-     RETURN a.id as sid, b.id as tid, p as partnership")
+  "MATCH (a)-[l]->(b)
+     RETURN a.id as sid, b.id as tid, l as link, type(l) as type")
 
 (db/defquery create-xbeam-customer-partnership
   "MATCH (a:customer),(b:customer)
@@ -63,6 +63,12 @@
 (db/defquery delete-all
   "MATCH (n)
      DETACH DELETE n")
+
+(db/defquery connected-non-customers
+  "MATCH (n:prospect)-[r]-()
+     RETURN n as node, labels(n) as labels
+   UNION MATCH (n:lead)-[r]-()
+     RETURN n as node, labels(n) as labels")
 
 (defn query
   ([func]

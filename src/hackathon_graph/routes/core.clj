@@ -10,11 +10,23 @@
         p2-new (assoc p2 :sid (:id b) :tid (:id c))]
     (assoc row :p1 p1-new :p2 p2-new)))
 
+(defn- inject-node-label
+  [{:keys [customer node labels]}]
+  (assoc (or customer node) :label (first labels)))
+
+(defn- inject-link-color
+  [{:keys [link] :as row}]
+  (-> row
+      (dissoc :link)
+      (merge link)))
+
 (defn get-all
   []
-  (let [nodes (map :customer (graph/query graph/get-all-xbeam-customers))
-        edges (graph/query graph/get-all-xbeam-customer-partnerships)]
-    (response {:nodes nodes :edges edges})))
+  (let [nodes (map inject-node-label (graph/query graph/get-all-xbeam-customers))
+        edges (map inject-link-color (graph/query graph/get-all-xbeam-customer-partnerships))
+        non-cust-nodes (map inject-node-label (graph/query graph/connected-non-customers))
+        all-nodes (concat nodes non-cust-nodes)]
+    (response {:nodes (set all-nodes) :edges (set edges)})))
 
 (defn get-node
   [node-id]

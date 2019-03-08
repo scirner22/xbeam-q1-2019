@@ -5,11 +5,10 @@
             [hackathon-graph.graph :as graph]))
 
 (defn- inject-edge-ids
-  [{:keys [a b p]}]
-  (def a a)
-  (def b b)
-  (def p p)
-  (assoc (first p) :sid (:id a) :tid (:id b)))
+  [{:keys [a b c p1 p2] :as row}]
+  (let [p1-new (assoc p1 :sid (:id a) :tid (:id b))
+        p2-new (assoc p2 :sid (:id b) :tid (:id c))]
+    (assoc row :p1 p1-new :p2 p2-new)))
 
 (defn get-all
   []
@@ -20,12 +19,27 @@
 (defn get-node
   [node-id]
   (let [coll (graph/query graph/get-xbeam-customer {:id node-id})
-        edges (map inject-edge-ids coll)])
-  (response {:message node-id}))
+        temp (map inject-edge-ids coll)
+        nodes (->> temp
+                   (map #(select-keys % [:a :b :c]))
+                   (map vals)
+                   flatten
+                   set)
+        edges (->> temp
+                   (map #(select-keys % [:p1 :p2]))
+                   (map vals)
+                   flatten
+                   set)]
+    (if (seq nodes)
+      (response {:nodes nodes :edges edges})
+      ; node has no partners - return set
+      (response {:nodes (->> {:id node-id}
+                             (graph/query graph/get-xbeam-customer-node)
+                             (map :customer))
+                 :edges edges}))))
 
 (defroutes app
   (GET "/graph/" [] (get-all))
-  (OPTIONS "/graph/" [] (response {}))
   (GET "/graph/:node_id" [node_id] (get-node (Integer/parseInt node_id)))
   (POST "/reseed" []
     (graph/seed-db)

@@ -11,8 +11,14 @@
 (db/defquery get-all-xbeam-customers
   "MATCH (c:customer) RETURN c as customer")
 
+(db/defquery get-xbeam-customer-node
+  "MATCH (a:customer{id: $id})
+     RETURN a as customer")
+
 (db/defquery get-xbeam-customer
-  "MATCH (a:customer{id: $id})-[p:PARTNER*1..2]-(b:customer) return a, b, p")
+  "MATCH (a:customer{id: $id})-[p1:PARTNER]-(b:customer)
+     OPTIONAL MATCH (b:customer)-[p2:PARTNER]-(c:customer)
+      RETURN a, b, c, p1, p2")
 
 (db/defquery get-all-xbeam-customer-partnerships
   "MATCH (a:customer)-[p:PARTNER]->(b:customer)

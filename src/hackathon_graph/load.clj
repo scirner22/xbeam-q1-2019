@@ -9,6 +9,14 @@
   (-> (slurp "/data/partners.dump")
       (str/split #"\n")))
 
+(def hubspot-lines
+  (-> (slurp "/data/hubspot.dump")
+      (str/split #"\n")))
+
+(def hubspot-edges-lines
+  (-> (slurp "/data/hubspot_edges.dump")
+      (str/split #"\n")))
+
 (defn split-rows
   [coll]
   (map #(str/split % #",") coll))
@@ -16,18 +24,32 @@
 (defn orgs
   []
   (let [coll (split-rows org-lines)
-        columns [:id :name :crunchbase_url :url :onboarded_since :since]]
-    (->> coll
-         (map #(apply assoc {} (interleave columns %))))))
+        columns [:_color :id :name :crunchbase_url :url :onboarded_since :since]]
+    (map #(apply assoc {} (interleave columns %)) coll)))
 
 (defn org-nodes
   []
   (map #(assoc % :id (-> % :id Integer/parseInt)) (orgs)))
 
+(defn hubspot
+  []
+  (let [coll (split-rows hubspot-lines)
+        columns (map keyword (first coll))
+        data (rest coll)]
+    (map #(apply assoc {} (interleave columns %)) data)))
+
+(defn hubspot-nodes
+  []
+  (map #(assoc %2 :id %1) (range 100 10000 1) (hubspot)))
+
+(defn hubspot-edges
+  []
+  (split-rows hubspot-edges-lines))
+
 (defn partnerships
   []
   (let [coll (split-rows partner-lines)
-        columns [:since :updated_at :id :org_id :partner_org_id]]
+        columns [:_color :since :updated_at :id :org_id :partner_org_id]]
     (->> coll
          (map #(apply assoc {} (interleave columns %)))
          (map #(dissoc % :updated_at :id)))))
